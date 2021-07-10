@@ -1,0 +1,9 @@
+# バイナリ
+binary/*
+
+mysql_data/
+go.sum
+./main
+
+# 環境変数
+*.env

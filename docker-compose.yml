@@ -1,0 +1,10 @@
+version: "3"
+services:
+  app:
+    build: .
+    container_name: sake_io_auth
+    command: realize start
+    volumes:
+      - ./:/go/src/app
+    ports:
+      - 8090:8090
