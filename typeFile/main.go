@@ -9,3 +9,7 @@ type Token struct {
 	IDToken      string `json:"idToken"`
 	RefreshToken string `json:"refreshToken"`
 }
+
+type UserID struct {
+	UserID string
+}
