@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func MySQL() *sql.DB {
+func Connect() *sql.DB {
 	DBInfo := conf.GetDBInfo()
 	db, err := sql.Open("mysql", DBInfo.USER+":"+DBInfo.PASSWORD+"@tcp("+DBInfo.HOST+":"+DBInfo.PORT+")/"+DBInfo.DB+"?parseTime=true")
 

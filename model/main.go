@@ -1,16 +1,16 @@
 package model
 
 import (
-	"sake_io_auth/db"
-	"sake_io_auth/typeFile"
-	"time"
-
-	"github.com/golang-jwt/jwt"
 	"github.com/sirupsen/logrus"
+	"sake_io_auth/db"
+	"sake_io_auth/token"
+	"sake_io_auth/typeFile"
+	"strconv"
+	"time"
 )
 
 func Login(userInfo typeFile.LoginType) typeFile.Token {
-	db := db.MySQL()
+	db := db.Connect()
 	defer db.Close()
 
 	stmt, err := db.Prepare("SELECT id FROM user WHERE mail=? AND pass=?;")
@@ -30,23 +30,43 @@ func Login(userInfo typeFile.LoginType) typeFile.Token {
 	}
 
 	if user_id != "" {
-		return typeFile.Token{CreateToken(user_id), "refresh_sample"}
+		idToken, _ := token.CreateIDToken(user_id)
+		refreshToken, _ := token.CreateRefreshToken(user_id)
+		stmt2, err := db.Prepare("INSERT INTO token(user_id, id_token, refresh_token, created_at, updated_at) VALUES(?, ?, ?, ?, ?);")
+		if err != nil {
+			logrus.Error(err)
+		}
+		defer stmt2.Close()
+
+		user_id_int, _ := strconv.Atoi(user_id)
+		_, err = stmt2.Exec(user_id_int, idToken, refreshToken, time.Now(), time.Now())
+		if err != nil {
+			logrus.Error(err)
+			panic(err)
+		}
+
+		return typeFile.Token{idToken, refreshToken}
 	} else {
-		return typeFile.Token{"id_sample", "refresh_sample"}
+		return typeFile.Token{"", ""}
 	}
 }
 
-func CreateToken(user_id string) string {
-	token := jwt.New(jwt.SigningMethodHS256)
+func AllToken() []typeFile.AllToken {
+	db := db.Connect()
+	defer db.Close()
 
-	claims := token.Claims.(jwt.MapClaims)
-	claims["id"] = user_id
-	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
-
-	t, err := token.SignedString([]byte("secret"))
+	rows, err := db.Query("SELECT * FROM token;")
 	if err != nil {
 		logrus.Error(err)
-		return err.Error()
 	}
-	return t
+
+	var tokens []typeFile.AllToken
+	for rows.Next() {
+		token := typeFile.AllToken{}
+		if err := rows.Scan(&token.TokenID, &token.UserID, &token.IDToken, &token.RefreshToken, &token.Created_at, &token.Updated_at); err != nil {
+			logrus.Error(err)
+		}
+		tokens = append(tokens, token)
+	}
+	return tokens
 }

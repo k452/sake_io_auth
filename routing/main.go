@@ -14,4 +14,7 @@ func Routing(e *echo.Echo) {
 		body.Pass = c.FormValue("pass")
 		return c.JSON(200, model.Login(body))
 	})
+	e.GET("/all", func(c echo.Context) error {
+		return c.JSON(200, model.AllToken())
+	})
 }
