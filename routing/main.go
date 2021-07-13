@@ -12,6 +12,6 @@ func Routing(e *echo.Echo) {
 		var body typeFile.LoginType
 		body.Mail = c.FormValue("mail")
 		body.Pass = c.FormValue("pass")
-		return c.JSON(200, model.CreateToken(body))
+		return c.JSON(200, model.Login(body))
 	})
 }

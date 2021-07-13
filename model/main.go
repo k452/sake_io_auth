@@ -3,11 +3,13 @@ package model
 import (
 	"sake_io_auth/db"
 	"sake_io_auth/typeFile"
+	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/sirupsen/logrus"
 )
 
-func CreateToken(userInfo typeFile.LoginType) typeFile.Token {
+func Login(userInfo typeFile.LoginType) typeFile.Token {
 	db := db.MySQL()
 	defer db.Close()
 
@@ -27,5 +29,24 @@ func CreateToken(userInfo typeFile.LoginType) typeFile.Token {
 		}
 	}
 
-	return typeFile.Token{"id_sample", "refresh_sample"}
+	if user_id != "" {
+		return typeFile.Token{CreateToken(user_id), "refresh_sample"}
+	} else {
+		return typeFile.Token{"id_sample", "refresh_sample"}
+	}
+}
+
+func CreateToken(user_id string) string {
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	claims := token.Claims.(jwt.MapClaims)
+	claims["id"] = user_id
+	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
+
+	t, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		logrus.Error(err)
+		return err.Error()
+	}
+	return t
 }
