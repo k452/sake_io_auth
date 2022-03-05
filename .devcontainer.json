@@ -1,0 +1,27 @@
+{
+  "name": "sake_io_auth",
+  "dockerComposeFile": [
+    "../docker-compose.yaml"
+  ],
+  "service": "auth",
+  "workspaceFolder": "/go/src/sake_io_auth",
+  "settings": {
+    "go.toolsManagement.checkForUpdates": "off",
+    "go.gopath": "/go",
+    "go.gocodeAutoBuild": true,
+    "go.formatTool": "gofmt",
+    "go.useLanguageServer": true,
+    "editor.formatOnSave": false,
+    "[go]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "golang.go"
+    }
+  },
+  "extensions": [
+    "golang.go",
+    "mhutchie.git-graph",
+    "donjayamanne.githistory",
+    "eamodio.gitlens",
+    "mosapride.zenkaku"
+  ]
+}
